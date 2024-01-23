@@ -1,0 +1,10 @@
+services:
+  node:
+    build: .
+    ports:
+      - 3000:3000
+      - 9005:9005
+      - 5000:5000
+    volumes:
+      - .:/app
+    command: node /app/local.js

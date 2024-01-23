@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-messaging.js"></script>
+	<script src="./fcm.js"></script>
+	<script src="./fcm-client.js"></script>
+
+	<script type="text/javascript">
+		const fcmClient = new FCMClientImplementation();
+		var fcmToken = null;
+		fcmClient.initPage(
+			token => {
+				console.log("Got token in page", token);
+				document.querySelector("#token").innerHTML = token;
+				fcmToken = token;
+			},
+			payload => {
+				console.log("New Message!", payload);
+				document.querySelector("#message").innerHTML = payload.data.message;
+			}
+		)
+		const sendTestMessage = async () => {
+			const messageTest = document.querySelector("#testmessage").value;
+			const options = {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'key=AAAATNKDQxU:APA91bGc6W6jq3rAVKAVmOdnuuTaSttGY8tEj7hqvlCk5ARFoUyzsFMEsKRW-ApQCZurHoy3PiK1YvGe7ktKbA9TaejnuRKTWjQZU5wMdIwY7sAZrzZNi1n1nZp0bnqbamRPYshr_dmA'
+				},
+				body: JSON.stringify(
+					{
+						"to": fcmToken,
+						"priority": "high",
+						"notification": {
+							"body": "Body of Your Notification",
+							"title": "Title of Your Notification"
+						},
+						"data": {
+							"message": messageTest
+						}
+					}
+				)
+			}
+			const result = await fetch("https://fcm.googleapis.com/fcm/send", options);
+			const response = await result.json();
+			document.querySelector("#messagesendresult").innerHTML = JSON.stringify(response);
+			console.log("Push response", response);
+		}
+	</script>
+</head>
+
+<body>
+	<div>
+		<div>Send a message to:</div>
+		<pre id="token"></pre>
+		<div>
+			<input type="text" id="testmessage">
+			<input type="button" id="test" value="Send Test" onclick="sendTestMessage();" />
+			<div>Message Send Result: </div>
+			<pre id="messagesendresult"></pre>
+		</div>
+	</div>
+	<div>Received Message:</div>
+	<div id="message"></div>
+</body>
+
+</html>
